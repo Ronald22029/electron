@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio Iglesias U.C.E - Oruro</title>
+    <!-- Fuente moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --whatsapp: #25D366;
+            --whatsapp-hover: #128C7E;
+            --zone-bg: #f1f5f9;
+            --zone-border: #e2e8f0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 25px rgba(2, 132, 199, 0.15);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 2rem;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative; /* Necessary for menu positioning */
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* HEADER CON IMAGEN DE FONDO */
+        header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 4rem 2rem;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/portada.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            color: white;
+            overflow: hidden;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 3rem 1rem;
+                border-radius: 0; 
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background-color: #fff;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* BUSCADOR */
+        .search-container {
+            margin-top: -1.5rem; 
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 1.2rem 1.5rem 1.2rem 3.5rem;
+            border-radius: 50px;
+            border: none;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        #searchInput:focus {
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+
+        /* SECCIONES Y TARJETAS */
+        .zone-section {
+            margin-bottom: 1.5rem;
+            border-radius: var(--radius);
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--zone-border);
+        }
+
+        .zone-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--accent);
+        }
+
+        .zone-title:hover {
+            background-color: var(--zone-bg);
+        }
+
+        .zone-title .toggle-icon {
+            font-size: 0.9rem;
+            transition: transform 0.4s;
+            color: var(--accent);
+        }
+
+        .zone-section.active .zone-title .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .grid {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            border-top: 1px solid var(--zone-border);
+        }
+
+        .zone-section.active .grid {
+            display: grid;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--zone-border);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
+        }
+
+        .card-info h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .card-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-info p span {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        /* BOTONES DE ACCIÓN */
+        .card-actions {
+            display: flex;
+            gap: 0.25rem; /* Reduced gap */
+            margin-top: 0.5rem;
+            align-items: center; /* Crucial for vertical alignment of tiny menu */
+        }
+
+        .btn-location {
+            flex: none;
+            width: calc(100% - 36px); /* Adjust width to make tiny button bigger by remaining space */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-location:hover {
+            background-color: var(--accent-hover);
+            transform: scale(1.02);
+        }
+
+        /* TINY SHARE TRIGGER BUTTON */
+        .btn-share-trigger {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db; /* Light grey border */
+            color: var(--text-secondary);
+            background-color: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .btn-share-trigger:hover {
+            background-color: var(--zone-bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* GLOBAL POPUP MENU */
+        .share-menu {
+            position: absolute;
+            display: none; /* Hidden by default */
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid var(--zone-border);
+            min-width: 180px;
+        }
+
+        .share-menu.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .share-menu-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .share-menu-item:hover {
+            background-color: var(--zone-bg);
+        }
+
+        .menu-icon {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+        .menu-icon.whatsapp-icon {
+            color: var(--whatsapp);
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <div class="logo-container">
+            <img src="images/icono.png" alt="Logo U.C.E" class="logo" onerror="this.style.display='none'">
+        </div>
+        <h1>Directorio Iglesias U.C.E</h1>
+        <p>Comité Juvenil 7ma - Oruro</p>
+    </div>
+</header>
+
+<div class="container">
+    <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="¿Qué iglesia buscas?" onkeyup="filterContent()">
+    </div>
+
+    <div id="content">
+        <!-- ZONA CEMENTERIO -->
+        <div class="zone-section" data-zone="ZONA CEMENTERIO">
+            <h2 class="zone-title">📍 ZONA CEMENTERIO <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>HEBRON - SIERVOS DEL SEÑOR</h3>
+                        <p><span>📍</span> Zona Cementerio</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.984642,-67.112853" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="HEBRON - SIERVOS DEL SEÑOR" data-url="https://www.google.com/maps?q=-17.984642,-67.112853">⋮</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Dios es Amor - Emanuel</h3>
+                        <p><span>📍</span> Zona Cementerio</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.982501,-67.119679" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Dios es Amor - Emanuel" data-url="https://www.google.com/maps?q=-17.982501,-67.119679">⋮</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Nueva Jerusalén (Oruro)</h3>
+                        <p><span>📍</span> Zona Cementerio</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.984642,-67.107957" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Nueva Jerusalén (Oruro)" data-url="https://www.google.com/maps?q=-17.984642,-67.107957">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ZONA MERCADO YUNG -->
+        <div class="zone-section" data-zone="ZONA MERCADO YUNG">
+            <h2 class="zone-title">📍 ZONA MERCADO YUNG <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>La Voz de Cristo - Fuego Celestial</h3>
+                        <p><span>📍</span> Zona Mercado Yung</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.9716762,-67.1343321" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="La Voz de Cristo - Fuego Celestial" data-url="https://www.google.com/maps?q=-17.9716762,-67.1343321">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALTO ORURO -->
+        <div class="zone-section" data-zone="ALTO ORURO">
+            <h2 class="zone-title">📍 ZONA ALTO ORURO <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Monte Sinai</h3>
+                        <p><span>📍</span> Alto Oruro</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.9759953,-67.1207859" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Monte Sinai" data-url="https://www.google.com/maps?q=-17.9759953,-67.1207859">⋮</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Arca de Noé - Redimidos en Cristo</h3>
+                        <p><span>📍</span> Alto Oruro</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.972246,-67.120097" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Arca de Noé - Redimidos en Cristo" data-url="https://www.google.com/maps?q=-17.972246,-67.120097">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NUEVA TERMINAL -->
+        <div class="zone-section" data-zone="NUEVA TERMINAL">
+            <h2 class="zone-title">📍 ZONA NUEVA TERMINAL <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Monte de Sion - Kairos</h3>
+                        <p><span>📍</span> Nueva Terminal</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.945181,-67.08382" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Monte de Sion - Kairos" data-url="https://www.google.com/maps?q=-17.945181,-67.08382">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAN ISIDRO -->
+        <div class="zone-section" data-zone="SAN ISIDRO">
+            <h2 class="zone-title">📍 ZONA SAN ISIDRO <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Sinai - Roca Fuerte</h3>
+                        <p><span>📍</span> San Isidro</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.983629,-67.078417" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Sinai - Roca Fuerte" data-url="https://www.google.com/maps?q=-17.983629,-67.078417">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEATRO INTERNACIONAL -->
+        <div class="zone-section" data-zone="TEATRO INTERNACIONAL">
+            <h2 class="zone-title">📍 ZONA TEATRO INTERNACIONAL <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Nueva Esperanza Arenales - Jireh</h3>
+                        <p><span>📍</span> Teatro Internacional</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.9804236,-67.0899097" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Nueva Esperanza Arenales - Jireh" data-url="https://www.google.com/maps?q=-17.9804236,-67.0899097">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VINTO -->
+        <div class="zone-section" data-zone="VINTO">
+            <h2 class="zone-title">📍 ZONA VINTO <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Nueva Jerusalén Vinto</h3>
+                        <p><span>📍</span> Vinto</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.9757392,-67.0498992" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Nueva Jerusalén Vinto" data-url="https://www.google.com/maps?q=-17.9757392,-67.0498992">⋮</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Cristo es la Única Esperanza - Emanuel</h3>
+                        <p><span>📍</span> Vinto</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-17.9757392,-67.0498992" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Cristo es la Única Esperanza - Emanuel" data-url="https://www.google.com/maps?q=-17.9757392,-67.0498992">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HUANUNI (VILUYO) -->
+        <div class="zone-section" data-zone="HUANUNI (VILUYO)">
+            <h2 class="zone-title">📍 HUANUNI (VILUYO) <span class="toggle-icon">▼</span></h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Getsemaní - Emanuel</h3>
+                        <p><span>📍</span> Huanuni (Viluyo)</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-18.2847645,-66.8427428" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Getsemaní - Emanuel" data-url="https://www.google.com/maps?q=-18.2847645,-66.8427428">⋮</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Betania - Alfa y Omega</h3>
+                        <p><span>📍</span> Huanuni (Viluyo)</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-18.2883051,-66.8362911" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Betania - Alfa y Omega" data-url="https://www.google.com/maps?q=-18.2883051,-66.8362911">⋮</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-info">
+                        <h3>Nueva Caanan Viluyo - Uriel</h3>
+                        <p><span>📍</span> Huanuni (Viluyo)</p>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://www.google.com/maps?q=-18.244122,-66.883522" target="_blank" class="btn-location">📍 Ver en Mapa</a>
+                        <button class="btn-share-trigger" title="Compartir u Opciones" data-church="Nueva Caanan Viluyo - Uriel" data-url="https://www.google.com/maps?q=-18.244122,-66.883522">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 U.C.E. | Comité Juvenil 7ma | Oruro</p>
+    </footer>
+</div>
+
+<!-- GLOBALPOPUP MENU -->
+<div id="globalShareMenu" class="share-menu">
+    <button class="share-menu-item" id="menuWaItem">
+        <span class="menu-icon whatsapp-icon">💬</span> Compartir por WhatsApp
+    </button>
+    <button class="share-menu-item" id="menuCopyItem">
+        <span class="menu-icon">🔗</span> Copiar Enlace
+    </button>
+</div>
+
+<!-- Toast Message -->
+<div id="toast">Enlace copiado al portapapeles</div>
+
+<script>
+    // Global references for the menu state
+    const globalMenu = document.getElementById('globalShareMenu');
+    let currentChurchName = '';
+    let currentChurchUrl = '';
+
+    // Initialize all sharing trigger buttons
+    function initShareFeatures() {
+        const triggers = document.querySelectorAll('.btn-share-trigger');
+        const waItem = document.getElementById('menuWaItem');
+        const copyItem = document.getElementById('menuCopyItem');
+
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent immediate closing by body listener
+
+                // 1. Update state
+                currentChurchName = this.getAttribute('data-church');
+                currentChurchUrl = this.getAttribute('data-url');
+
+                // 2. Position the menu near the button
+                const rect = this.getBoundingClientRect();
+                
+                // Position above or below depending on space
+                const spaceBelow = window.innerHeight - rect.bottom;
+                if (spaceBelow < 120) {
+                     globalMenu.style.top = `${rect.top + window.scrollY - 90}px`; // Above
+                } else {
+                     globalMenu.style.top = `${rect.bottom + window.scrollY + 5}px`; // Below
+                }
+                
+                // Position horizontally, aligned to the right of the container
+                globalMenu.style.left = `${rect.right + window.scrollX - 180}px`;
+
+                // 3. Show menu
+                globalMenu.classList.add('active');
+            });
+        });
+
+        // WhatsApp Item Listener
+        waItem.addEventListener('click', function() {
+            if (!currentChurchUrl) return;
+            const shareText = `📍 Mira la ubicación de la iglesia *${currentChurchName}*:
+${currentChurchUrl}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(whatsappUrl, '_blank');
+            closeMenu();
+        });
+
+        // Copy Link Item Listener
+        copyItem.addEventListener('click', function() {
+            if (!currentChurchUrl) return;
+            navigator.clipboard.writeText(currentChurchUrl).then(() => {
+                showToast("¡Enlace copiado!");
+            }).catch(() => {
+                showToast("No se pudo copiar el enlace");
+            });
+            closeMenu();
+        });
+    }
+
+    function closeMenu() {
+        globalMenu.classList.remove('active');
+        // Reset state (optional but good practice)
+        currentChurchName = '';
+        currentChurchUrl = '';
+    }
+
+    // Global listener to close menu if clicked outside
+    document.body.addEventListener('click', function() {
+        if (globalMenu.classList.contains('active')) {
+            closeMenu();
+        }
+    });
+
+    // Handle menu clicks so they don't propagate to body and close menu immediately
+    globalMenu.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+
+    // ZONE TOGGLE LOGIC
+    document.querySelectorAll('.zone-title').forEach(title => {
+        title.addEventListener('click', () => {
+            const section = title.parentElement;
+            section.classList.toggle('active');
+        });
+    });
+
+    // SEARCH FILTER
+    function filterContent() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toUpperCase();
+        const zones = document.getElementsByClassName('zone-section');
+        const isSearchEmpty = filter === "";
+
+        for (let i = 0; i < zones.length; i++) {
+            let zoneHasMatches = false;
+            let zoneHasVisibleCards = false;
+            const cards = zones[i].getElementsByClassName('card');
+            const zoneTitle = zones[i].getAttribute('data-zone').toUpperCase();
+
+            if (zoneTitle.indexOf(filter) > -1 && !isSearchEmpty) {
+                zoneHasMatches = true;
+            }
+
+            for (let j = 0; j < cards.length; j++) {
+                const title = cards[j].getElementsByTagName('h3')[0].innerText.toUpperCase();
+                if (isSearchEmpty) {
+                    cards[j].style.display = "";
+                } else if (title.indexOf(filter) > -1) {
+                    cards[j].style.display = "";
+                    zoneHasMatches = true;
+                    zoneHasVisibleCards = true;
+                } else {
+                    cards[j].style.display = "none";
+                }
+            }
+
+            if (isSearchEmpty) {
+                zones[i].style.display = "";
+                zones[i].classList.remove('active');
+            } else if (zoneHasMatches) {
+                zones[i].style.display = "";
+                if (zoneHasVisibleCards || zoneTitle.indexOf(filter) > -1) {
+                    zones[i].classList.add('active'); 
+                } else {
+                     zones[i].classList.remove('active');
+                }
+            } else {
+                zones[i].style.display = "none";
+                zones[i].classList.remove('active');
+            }
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.className = "show";
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // Call init on load
+    window.addEventListener('DOMContentLoaded', initShareFeatures);
+
+</script>
+
+</body>
+</html>
