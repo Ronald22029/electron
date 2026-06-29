@@ -2,38 +2,49 @@
   <q-page class="player-page">
     <!-- ===== REPRODUCTOR MULTIMEDIA DE FONDO ===== -->
     <div class="media-container">
-      <template v-if="playlist.length > 0">
-        <!-- Video Player -->
-        <video
-          v-if="currentAd && currentAd.type === 'video'"
-          ref="videoPlayer"
-          class="fullscreen-media"
-          :src="currentAd.url"
-          autoplay
-          muted
-          playsinline
-          @ended="nextAd"
-          @error="onVideoError"
-        ></video>
+      <transition name="fade" mode="out-in">
+        <div v-if="playlist.length > 0 && currentAd" :key="currentAd.file_id" class="fullscreen-media-wrapper">
+          <!-- Video Player -->
+          <video
+            v-if="currentAd.type === 'video'"
+            ref="videoPlayer"
+            class="fullscreen-media"
+            :src="currentAd.url"
+            autoplay
+            muted
+            playsinline
+            @ended="nextAd"
+            @error="onVideoError"
+          ></video>
 
-        <!-- Image Player -->
-        <img
-          v-else-if="currentAd && currentAd.type === 'image'"
-          class="fullscreen-media"
-          :src="currentAd.url"
-          alt="Publicidad"
-        />
-      </template>
-
-      <!-- Pantalla por defecto si no hay anuncios -->
-      <div v-else class="default-bg flex flex-center">
-        <div class="text-center">
-          <q-icon name="local_pharmacy" size="100px" color="white" class="pharmacy-pulse" />
-          <div class="text-h3 text-white q-mt-md font-weight-bold">SANTIDAD-DIVINA S.R.L.</div>
-          <div class="text-subtitle1 text-grey q-mt-sm">FARMACIA</div>
+          <!-- Image Player -->
+          <img
+            v-else
+            class="fullscreen-media"
+            :src="currentAd.url"
+            alt="Publicidad"
+          />
         </div>
-      </div>
+
+        <!-- Pantalla por defecto si no hay anuncios -->
+        <div v-else class="default-bg flex flex-center">
+          <div class="text-center">
+            <q-icon name="local_pharmacy" size="100px" color="white" class="pharmacy-pulse" />
+            <div class="text-h3 text-white q-mt-md font-weight-bold">SANTIDAD-DIVINA S.R.L.</div>
+            <div class="text-subtitle1 text-grey q-mt-sm">FARMACIA</div>
+          </div>
+        </div>
+      </transition>
     </div>
+
+    <!-- Pre-carga silenciosa del próximo video para evitar retraso de carga -->
+    <video
+      v-if="nextAdUrl"
+      style="display: none;"
+      :src="nextAdUrl"
+      preload="auto"
+      muted
+    ></video>
 
     <!-- ===== SUPERPOSICIÓN DE VERIFICACIÓN DE CLIENTE (PRIMER PLANO) ===== -->
     <div class="overlay-container" v-if="clientData.visible || showThanks">
@@ -260,10 +271,21 @@ const currentTime = ref('')
 let clockInterval = null
 let socketConn = null
 let watchdogTimer = null
+let heartbeatInterval = null
 
 const currentAd = computed(() => {
   if (playlist.value.length === 0) return null
   return playlist.value[currentIndex.value]
+})
+
+const nextAdUrl = computed(() => {
+  if (playlist.value.length <= 1) return null
+  const nextIndex = (currentIndex.value + 1) % playlist.value.length
+  const nextAd = playlist.value[nextIndex]
+  if (nextAd && nextAd.type === 'video') {
+    return nextAd.url
+  }
+  return null
 })
 
 const hasClientData = computed(() => {
@@ -358,6 +380,9 @@ async function fetchPlaylist () {
     if (response.ok) {
       let data = await response.json()
       if (Array.isArray(data)) {
+        // Guardar copia limpia en caché local para uso offline
+        localStorage.setItem('pcpubli_playlist_cache', JSON.stringify(data))
+
         const newIds = data.map(d => d.file_id)
         const oldIds = playlist.value.map(d => d.file_id)
 
@@ -374,15 +399,14 @@ async function fetchPlaylist () {
           // Descargar los nuevos archivos
           for (const ad of data) {
             if (window.mediaAPI) {
-              await window.mediaAPI.download(ad.file_id, ad.type)
-              // Asignar ruta local para reproducción
-              const ext = ad.type === 'video' ? 'mp4' : 'jpg'
-              ad.url = `localmedia://publicidad_${ad.file_id}.${ext}`
+              // Pasar la URL pública de R2 directamente para descargar
+              await window.mediaAPI.download(ad.file_id, ad.type, ad.url)
+              // Construir ruta local: 'publicidad/foto.png' -> 'publicidad_foto.png'
+              const safeName = ad.file_id.replace(/[\/\\]/g, '_')
+              ad.url = `localmedia://${safeName}`
             } else {
-               // Fallback por si no estamos en Electron
-               // Construir URL remota (como antes)
-               const ext = ad.type === 'video' ? 'mp4' : 'jpg'
-               ad.url = `${cleanIp}/uploads/publicidad/publicidad_${ad.file_id}.${ext}`
+              // Fallback navegador: usar la URL remota de R2 directamente
+              ad.url = ad.url // Ya viene con la URL de R2 desde el backend
             }
           }
 
@@ -394,6 +418,7 @@ async function fetchPlaylist () {
       } else {
         // La API retornó objeto de "no hay publicidad"
         playlist.value = []
+        localStorage.removeItem('pcpubli_playlist_cache')
         clearImageTimer()
         if (window.mediaAPI) {
           await window.mediaAPI.cleanup([]) // Borrar todo local
@@ -403,7 +428,35 @@ async function fetchPlaylist () {
   } catch (err) {
     console.error('Error fetching playlist:', err)
     isDownloading.value = false
+    // Intentar reproducir desde caché si el servidor está caído
+    loadCachedPlaylist()
   }
+}
+
+// Carga de respaldo offline desde almacenamiento local
+async function loadCachedPlaylist () {
+  const cached = localStorage.getItem('pcpubli_playlist_cache')
+  if (cached) {
+    try {
+      const data = JSON.parse(cached)
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('Cargando playlist desde caché offline local...')
+        for (const ad of data) {
+          if (window.mediaAPI) {
+            const safeName = ad.file_id.replace(/[\/\\]/g, '_')
+            ad.url = `localmedia://${safeName}`
+          }
+        }
+        playlist.value = data
+        currentIndex.value = 0
+        playCurrentAd()
+        return
+      }
+    } catch (e) {
+      console.error('Error al restaurar caché offline:', e)
+    }
+  }
+  playlist.value = []
 }
 
 // Iniciar bucle de reproducción
@@ -447,6 +500,19 @@ function clearImageTimer () {
 
 function onVideoError (e) {
   console.error('Video error playing ad:', e)
+  
+  // Informar al backend vpc (vía socket) del fallo de reproducción
+  if (socketConn && socketConn.connected && currentAd.value) {
+    socketConn.emit('terminal_error', {
+      error_type: 'video_playback_failed',
+      ad_name: currentAd.value.name,
+      file_id: currentAd.value.file_id,
+      url: currentAd.value.url,
+      agencia_id: config.value.agencia,
+      message: `El video "${currentAd.value.name}" no es compatible o falló al reproducirse.`
+    })
+  }
+
   nextAd()
 }
 
@@ -461,6 +527,7 @@ function initSocket () {
 
   socketConn.on('connect', () => {
     console.log('Socket conectado con éxito:', socketConn.id)
+    sendStatusHeartbeat()
   })
 
   // Escuchar actualizaciones de publicidad
@@ -493,6 +560,32 @@ function initSocket () {
   // Escuchar latido del cajero
   socketConn.on('clienteDisplayHeartbeat', () => {
     resetWatchdog()
+  })
+}
+
+// Latido periódico para monitoreo del terminal (liviano y seguro)
+async function sendStatusHeartbeat () {
+  if (!socketConn || !socketConn.connected) return
+
+  let disk = { free: 'N/A', total: 'N/A' }
+  if (window.mediaAPI && window.mediaAPI.getDiskSpace) {
+    try {
+      disk = await window.mediaAPI.getDiskSpace()
+    } catch (e) {
+      console.error('Error al obtener espacio en disco:', e)
+    }
+  }
+
+  socketConn.emit('terminal_status', {
+    socket_id: socketConn.id,
+    agencia_id: config.value.agencia,
+    current_ad: currentAd.value ? currentAd.value.name : 'Ninguno',
+    current_ad_type: currentAd.value ? currentAd.value.type : 'N/A',
+    playlist_count: playlist.value.length,
+    disk_free: disk.free,
+    disk_total: disk.total,
+    online: true,
+    timestamp: new Date().toISOString()
   })
 }
 
@@ -557,12 +650,16 @@ onMounted(() => {
   } else {
     showConfigModal.value = true
   }
+
+  // Latido del socket cada 60 segundos
+  heartbeatInterval = setInterval(sendStatusHeartbeat, 60000)
 })
 
 onBeforeUnmount(() => {
   if (clockInterval) clearInterval(clockInterval)
   if (imageTimer.value) clearTimeout(imageTimer.value)
   if (watchdogTimer) clearTimeout(watchdogTimer)
+  if (heartbeatInterval) clearInterval(heartbeatInterval)
   if (socketConn) socketConn.disconnect()
   window.removeEventListener('keydown', handleKeyPress)
 })
@@ -955,5 +1052,25 @@ onBeforeUnmount(() => {
 
 .settings-gear:hover {
   opacity: 0.5;
+}
+
+/* Transición de opacidad suave (fundido cruzado) */
+.fullscreen-media-wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.8s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
